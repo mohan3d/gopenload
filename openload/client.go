@@ -2,6 +2,7 @@ package openload
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,7 +19,10 @@ func buildAPIURL() string {
 	return fmt.Sprintf("%s/%s", apiBaseURL, apiVersion)
 }
 
-func checkStatus(status int) error {
+func checkStatus(status int, msg string) error {
+	if status != http.StatusOK {
+		return errors.New(msg)
+	}
 	return nil
 }
 
@@ -63,6 +67,7 @@ func (c *Client) getAPIURL(p string, q map[string]string) (string, error) {
 func processResponse(response io.Reader, result interface{}) error {
 	var data map[string]*json.RawMessage
 	var status int
+	var msg string
 
 	err := json.NewDecoder(response).Decode(&data)
 	if err != nil {
@@ -72,7 +77,11 @@ func processResponse(response io.Reader, result interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = checkStatus(status)
+	err = json.Unmarshal(*data["msg"], &msg)
+	if err != nil {
+		return err
+	}
+	err = checkStatus(status, msg)
 	if err != nil {
 		return err
 	}
