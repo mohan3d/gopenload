@@ -1,7 +1,9 @@
 package openload
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"path"
@@ -16,6 +18,10 @@ func buildAPIURL() string {
 	return fmt.Sprintf("%s/%s", apiBaseURL, apiVersion)
 }
 
+func checkStatus(status int) error {
+	return nil
+}
+
 // Client represents openload api client.
 type Client struct {
 	login      string
@@ -27,7 +33,11 @@ type Client struct {
 // AccountInfo requests logged-in account info
 // And returns AccountInfo object holding infos.
 func (c *Client) AccountInfo() (*AccountInfo, error) {
-	return nil, c.get("/account/info", nil)
+	var info AccountInfo
+	if err := c.get("/account/info", nil, &info); err != nil {
+		return nil, err
+	}
+	return &info, nil
 }
 
 func (c *Client) getAPIURL(p string, q map[string]string) (string, error) {
@@ -50,8 +60,36 @@ func (c *Client) getAPIURL(p string, q map[string]string) (string, error) {
 	return u.String(), nil
 }
 
-func (c *Client) get(p string, q map[string]string) error {
-	return nil
+func processResponse(response io.Reader, result interface{}) error {
+	var data map[string]*json.RawMessage
+	var status int
+
+	err := json.NewDecoder(response).Decode(&data)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(*data["status"], &status)
+	if err != nil {
+		return err
+	}
+	err = checkStatus(status)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(*data["result"], &result)
+}
+
+func (c *Client) get(p string, q map[string]string, result interface{}) error {
+	u, err := c.getAPIURL(p, q)
+	if err != nil {
+		return err
+	}
+	response, err := http.Get(u)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	return processResponse(response.Body, &result)
 }
 
 // New creates new openload client an returns a reference.
