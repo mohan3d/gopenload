@@ -64,7 +64,7 @@ func (c *Client) FileInfo(fileID string) (*FileInfoResponse, error) {
 
 // FilesInfo requests info for a list of files.
 // https://openload.co/api#download-info
-func (c *Client) FilesInfo(filesID []string) (*FilesInfoResponse, error) {
+func (c *Client) FilesInfo(filesID []string) (FilesInfoResponse, error) {
 	return nil, nil
 }
 
@@ -98,19 +98,19 @@ func (c *Client) ListFolder(folderID string) (*ListFolderResponse, error) {
 // RenameFolder renames existing folder.
 // https://openload.co/api#file-renamefolder
 func (c *Client) RenameFolder(folderID string, name string) (RenameFolderResponse, error) {
-	return nil, nil
+	return false, nil
 }
 
 // RenameFile renames existing file.
 // https://openload.co/api#file-rename
 func (c *Client) RenameFile(fileID string, name string) (RenameFolderResponse, error) {
-	return nil, nil
+	return false, nil
 }
 
 // DeleteFile deletes existing file.
 // https://openload.co/api#file-delete
 func (c *Client) DeleteFile(fileID string) (DeleteFileResponse, error) {
-	return nil, nil
+	return false, nil
 }
 
 // ConvertFile asks openload to convert media file.
@@ -118,7 +118,7 @@ func (c *Client) DeleteFile(fileID string) (DeleteFileResponse, error) {
 // https://openload.co/account#conversionsettings
 // https://openload.co/api#convertingfiles
 func (c *Client) ConvertFile(fileID string) (ConvertFileResponse, error) {
-	return nil, nil
+	return false, nil
 }
 
 // RunningConversions checks pending conversions status.
@@ -131,7 +131,7 @@ func (c *Client) RunningConversions(folderID string) (RunningConversionsResponse
 // Usually it should be used with media fileID (movie, ...)
 // https://openload.co/api#file-splash
 func (c *Client) SplashImage(fileID string) (SplashImageResponse, error) {
-	return nil, nil
+	return "", nil
 }
 
 func (c *Client) getAPIURL(p string, q map[string]string) (string, error) {
@@ -175,8 +175,6 @@ func processResponse(response io.Reader, result interface{}) error {
 	if err != nil {
 		return err
 	}
-	// fmt.Println("#$@@#$@#$@$#")
-	// fmt.Println(string(*data["result"]))
 	return json.Unmarshal(*data["result"], &result)
 }
 
