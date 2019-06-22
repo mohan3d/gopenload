@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
@@ -111,19 +111,48 @@ func (c *Client) UploadLink(folderID string, sha1 string, httponly bool) (*Uploa
 
 // Upload uploads contesnt of filepath.
 // https://openload.co/api#upload
-func (c *Client) Upload(filePath string, folderID string, sha1 string, httponly bool) (*UploadResponse, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-	return c.UploadFrom(file, "", folderID, sha1, httponly)
-}
+func (c *Client) Upload(name string, folderID string, sha1 string, httponly bool) (*UploadResponse, error) {
+	var result UploadResponse
 
-// UploadFrom uploads contents of a reader.
-// https://openload.co/api#upload
-func (c *Client) UploadFrom(r io.Reader, name string, folderID string, sha1 string, httponly bool) (*UploadResponse, error) {
-	return nil, nil
+	// Get valid upload link.
+	ul, err := c.UploadLink(folderID, sha1, httponly)
+	if err != nil {
+		return nil, err
+	}
+
+	// Read the file.
+	r, w := io.Pipe()
+	m := multipart.NewWriter(w)
+
+	go func() {
+		defer w.Close()
+		defer m.Close()
+
+		part, err := m.CreateFormFile("files", path.Base(name))
+		if err != nil {
+			return
+		}
+		file, err := os.Open(name)
+		if err != nil {
+			return
+		}
+		defer file.Close()
+		if _, err = io.Copy(part, file); err != nil {
+			return
+		}
+	}()
+
+	// Upload the file and process the response.
+	response, err := c.httpClient.Post(ul.URL, m.FormDataContentType(), r)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+	err = processResponse(response.Body, &result)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 // RemoteUpload adds a remote upload.
