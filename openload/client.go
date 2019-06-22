@@ -79,10 +79,10 @@ func (c *Client) FileInfo(fileID string) (*FileInfoResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	if l := len(*infos); l != 1 {
+	if l := len(infos); l != 1 {
 		return nil, fmt.Errorf("expected only one file info got %d", l)
 	}
-	for _, v := range *infos {
+	for _, v := range infos {
 		return &v, nil
 	}
 	return nil, errors.New("this error is not supposed to happen")
@@ -90,12 +90,12 @@ func (c *Client) FileInfo(fileID string) (*FileInfoResponse, error) {
 
 // FilesInfo requests info for a list of files.
 // https://openload.co/api#download-info
-func (c *Client) FilesInfo(filesID []string) (*FilesInfoResponse, error) {
+func (c *Client) FilesInfo(filesID []string) (FilesInfoResponse, error) {
 	var info FilesInfoResponse
 	if err := c.get("/file/info", map[string]string{"file": strings.Join(filesID, ",")}, &info); err != nil {
 		return nil, err
 	}
-	return &info, nil
+	return info, nil
 }
 
 // UploadLink requests an upload URL

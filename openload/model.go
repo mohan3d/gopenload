@@ -39,10 +39,10 @@ type DownloadLinkResponse struct {
 type FileInfoResponse struct {
 	ID          string      `json:"id"`
 	Status      int         `json:"status"`
-	Name        string      `json:"name"`
+	Name        interface{} `json:"name"`
 	Size        interface{} `json:"size"`
-	Sha1        string      `json:"sha1"`
-	ContentType string      `json:"content_type"`
+	Sha1        interface{} `json:"sha1"`
+	ContentType interface{} `json:"content_type"`
 }
 
 // FilesInfoResponse represents multiple files info response.
