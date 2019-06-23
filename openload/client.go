@@ -63,6 +63,9 @@ func (c *Client) DownloadTicket(fileID string) (*DownloadTicketResponse, error) 
 // DownloadLink requests direct download link for a specific file
 // This step must be executed after getting ticket and captcha response
 // From previous step (DownloadTicket).
+// ticket can be optained from DownloadTicket response
+// captcha is optinal althought it is documented as mandatory
+// field in openload API documentation sometimes download ticket has no captcha.
 // https://openload.co/api#download-getlink
 func (c *Client) DownloadLink(fileID string, ticket string, captchaResponse string) (*DownloadLinkResponse, error) {
 	var link DownloadLinkResponse
@@ -110,6 +113,9 @@ func (c *Client) UploadLink(folderID string, sha1 string, httponly bool) (*Uploa
 }
 
 // Upload uploads contesnt of filepath.
+// folderID is optional pass empty string "" if not needed
+// sha1 is optional pass empty string "" if not needed
+// httponly is optional pass false if not needed.
 // https://openload.co/api#upload
 func (c *Client) Upload(name string, folderID string, sha1 string, httponly bool) (*UploadResponse, error) {
 	var result UploadResponse
@@ -155,7 +161,8 @@ func (c *Client) Upload(name string, folderID string, sha1 string, httponly bool
 	return &result, nil
 }
 
-// RemoteUpload adds a remote upload.
+// RemoteUpload adds a remote upload
+// folderID is optional pass empty string "" if not needed.
 // https://openload.co/api#remoteul-add
 func (c *Client) RemoteUpload(url string, folderID string) (*RemoteUploadResponse, error) {
 	var remote RemoteUploadResponse
@@ -169,7 +176,10 @@ func (c *Client) RemoteUpload(url string, folderID string) (*RemoteUploadRespons
 	return &remote, nil
 }
 
-// RemoteUploadStatus checks status of remote upload requests.
+// RemoteUploadStatus checks status of remote upload requests
+// limit is optional pass 5 as default (Default: 5, Maximum: 100)
+// uploadID is optional pass empty string "" if not needed
+// uploadID is used to check only one remote upload status.
 // https://openload.co/api#remoteul-check
 func (c *Client) RemoteUploadStatus(limit int64, uploadID string) (RemoteUploadsStatusResponse, error) {
 	var status RemoteUploadsStatusResponse
@@ -244,6 +254,8 @@ func (c *Client) ConvertFile(fileID string) (ConvertFileResponse, error) {
 }
 
 // RunningConversions checks pending conversions status.
+// folderID is optional pass empty string "" if not needed
+// if not specified all running conversion will be returned.
 // https://openload.co/api#file-runningconverts
 func (c *Client) RunningConversions(folderID string) (RunningConversionsResponse, error) {
 	var conversions RunningConversionsResponse
@@ -326,6 +338,10 @@ func (c *Client) get(p string, q map[string]string, result interface{}) error {
 }
 
 // New creates new openload client an returns a reference.
+// httpClient is optional pass nil if not needed.
+// httpClient might be passed to override default httpClient
+// example override reqeusts timeout.
+// https://golang.org/pkg/net/http/#Client
 func New(login, key string, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
