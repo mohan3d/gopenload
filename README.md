@@ -3,6 +3,8 @@ Golang client of the [openload.co](https://openload.co/) service.
 
 [![Build Status](https://travis-ci.org/mohan3d/gopenload.svg?branch=master)](https://travis-ci.org/mohan3d/gopenload)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mohan3d/gopenload?branch=master)](https://goreportcard.com/report/github.com/mohan3d/gopenload)
+[![GoDoc](https://godoc.org/github.com/mohan3d/gopenload?status.svg)](https://godoc.org/github.com/mohan3d/gopenload/openload)
+
 
 # Installation
 
