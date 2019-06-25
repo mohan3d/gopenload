@@ -163,12 +163,20 @@ func (c *Client) Upload(name string, folderID string, sha1 string, httponly bool
 
 // RemoteUpload adds a remote upload
 // folderID is optional pass empty string "" if not needed.
+// headers is optional pass nil or empty map if not needed.
 // https://openload.co/api#remoteul-add
-func (c *Client) RemoteUpload(url string, folderID string) (*RemoteUploadResponse, error) {
+func (c *Client) RemoteUpload(url string, folderID string, headers map[string]string) (*RemoteUploadResponse, error) {
 	var remote RemoteUploadResponse
 	params := map[string]string{"url": url}
 	if folderID != "" {
 		params["folder"] = folderID
+	}
+	if headers != nil && len(headers) > 0 {
+		h := []string{}
+		for k, v := range headers {
+			h = append(h, fmt.Sprintf("%s: %s", k, v))
+		}
+		params["headers"] = strings.Join(h, "\n")
 	}
 	if err := c.get("/remotedl/add", params, &remote); err != nil {
 		return nil, err
