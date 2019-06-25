@@ -137,7 +137,7 @@ func TestRemoteUpload(t *testing.T) {
 		Reply(200).
 		BodyString(`{"status":200,"msg":"OK","result":{"id":"12","folderid":"4248"}}`)
 
-	remote, err := c().RemoteUpload("http://google.com/favicon.ico", "folderID")
+	remote, err := c().RemoteUpload("http://google.com/favicon.ico", "folderID", nil)
 
 	assert.Nil(t, err)
 	assert.EqualValues(t, "12", remote.ID)
